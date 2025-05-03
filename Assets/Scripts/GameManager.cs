@@ -20,16 +20,20 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null) {
+        if (Instance != null)
+        {
             DestroyImmediate(gameObject);
-        } else {
+        }
+        else
+        {
             Instance = this;
         }
     }
 
     private void OnDestroy()
     {
-        if (Instance == this) {
+        if (Instance == this)
+        {
             Instance = null;
         }
     }
@@ -50,7 +54,8 @@ public class GameManager : MonoBehaviour
 
     private void NewLevel()
     {
-        for (int i = 0; i < homes.Length; i++) {
+        for (int i = 0; i < homes.Length; i++)
+        {
             homes[i].enabled = false;
         }
 
@@ -85,9 +90,12 @@ public class GameManager : MonoBehaviour
     {
         SetLives(lives - 1);
 
-        if (lives > 0) {
+        if (lives > 0)
+        {
             Invoke(nameof(Respawn), 1f);
-        } else {
+        }
+        else
+        {
             Invoke(nameof(GameOver), 1f);
         }
     }
@@ -107,7 +115,8 @@ public class GameManager : MonoBehaviour
 
         while (!playAgain)
         {
-            if (Input.GetKeyDown(KeyCode.Return)) {
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
                 playAgain = true;
             }
 
@@ -145,7 +154,8 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < homes.Length; i++)
         {
-            if (!homes[i].enabled) {
+            if (!homes[i].enabled)
+            {
                 return false;
             }
         }

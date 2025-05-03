@@ -22,17 +22,20 @@ public class AnimatedSprite : MonoBehaviour
 
     private void Advance()
     {
-        if (!spriteRenderer.enabled) {
+        if (!spriteRenderer.enabled)
+        {
             return;
         }
 
         animationFrame++;
 
-        if (animationFrame >= sprites.Length && loop) {
+        if (animationFrame >= sprites.Length && loop)
+        {
             animationFrame = 0;
         }
 
-        if (animationFrame >= 0 && animationFrame < sprites.Length) {
+        if (animationFrame >= 0 && animationFrame < sprites.Length)
+        {
             spriteRenderer.sprite = sprites[animationFrame];
         }
     }

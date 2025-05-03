@@ -29,12 +29,12 @@ public class Frogger : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
             transform.rotation = Quaternion.Euler(0f, 0f, 90f);
-            Move(Vector3.left);
+            Move(Vector3.left, true); // Adjusted for left move
         }
         else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
             transform.rotation = Quaternion.Euler(0f, 0f, -90f);
-            Move(Vector3.right);
+            Move(Vector3.right, true); // Adjusted for right move
         }
         else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
@@ -43,11 +43,20 @@ public class Frogger : MonoBehaviour
         }
     }
 
-    private void Move(Vector3 direction)
+    private void Move(Vector3 direction, bool isHorizontal = false)
     {
         if (cooldown) return;
 
-        Vector3 destination = transform.position + direction;
+        // Default move distance
+        float moveDistance = 1f * (2f / 3f);
+
+        // Adjust horizontal movement to 2x the distance
+        if (isHorizontal)
+        {
+            moveDistance *= 1.5f; // 2x for horizontal (left and right)
+        }
+
+        Vector3 destination = transform.position + direction.normalized * moveDistance;
 
         // Check for collision at the destination
         Collider2D platform = Physics2D.OverlapBox(destination, Vector2.zero, 0f, LayerMask.GetMask("Platform"));
@@ -55,14 +64,18 @@ public class Frogger : MonoBehaviour
         Collider2D barrier = Physics2D.OverlapBox(destination, Vector2.zero, 0f, LayerMask.GetMask("Barrier"));
 
         // Prevent any movement if there is a barrier
-        if (barrier != null) {
+        if (barrier != null)
+        {
             return;
         }
 
         // Attach/detach frogger from the platform
-        if (platform != null) {
+        if (platform != null)
+        {
             transform.SetParent(platform.transform);
-        } else {
+        }
+        else
+        {
             transform.SetParent(null);
         }
 
@@ -93,7 +106,7 @@ public class Frogger : MonoBehaviour
         Vector3 startPosition = transform.position;
 
         float elapsed = 0f;
-        float duration = 0.125f;
+        float duration = 0.125f; // Zıplama süresi kısaltılabilir
 
         // Set initial state
         spriteRenderer.sprite = leapSprite;
@@ -153,9 +166,9 @@ public class Frogger : MonoBehaviour
         bool hitObstacle = other.gameObject.layer == LayerMask.NameToLayer("Obstacle");
         bool onPlatform = transform.parent != null;
 
-        if (enabled && hitObstacle && !onPlatform) {
+        if (enabled && hitObstacle && !onPlatform)
+        {
             Death();
         }
     }
-
 }
