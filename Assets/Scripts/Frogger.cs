@@ -58,47 +58,29 @@ public class Frogger : MonoBehaviour
 
         Vector3 destination = transform.position + direction.normalized * moveDistance;
 
-        // Check for collision at the destination
-        Collider2D platform = Physics2D.OverlapBox(destination, Vector2.zero, 0f, LayerMask.GetMask("Platform"));
-        Collider2D obstacle = Physics2D.OverlapBox(destination, Vector2.zero, 0f, LayerMask.GetMask("Obstacle"));
-        Collider2D barrier = Physics2D.OverlapBox(destination, Vector2.zero, 0f, LayerMask.GetMask("Barrier"));
+        // Collision check for platform, obstacle, and barrier are all handled with a single layer
+        Collider2D hitObject = Physics2D.OverlapPoint(destination);  // Check all objects on the same layer
 
-        // Prevent any movement if there is a barrier
-        if (barrier != null)
+        // If hit an obstacle, handle death
+        if (hitObject != null && hitObject.CompareTag("Obstacle"))
         {
+            Death();
             return;
         }
 
-        // Attach/detach frogger from the platform
-        if (platform != null)
+        // If hit a platform, attach or detach the frogger
+        if (hitObject != null && hitObject.CompareTag("Platform"))
         {
-            transform.SetParent(platform.transform);
+            transform.SetParent(hitObject.transform);
         }
         else
         {
             transform.SetParent(null);
         }
 
-        // Frogger dies when it hits an obstacle
-        if (obstacle != null && platform == null)
-        {
-            transform.position = destination;
-            Death();
-        }
-        // Conditions pass, move to the destination
-        else
-        {
-            // Check if we have advanced to a farther row
-            if (destination.y > farthestRow)
-            {
-                farthestRow = destination.y;
-                GameManager.Instance.AdvancedRow();
-            }
-
-            // Start leap animation
-            StopAllCoroutines();
-            StartCoroutine(Leap(destination));
-        }
+        // If there's no issue, move to the destination
+        StopAllCoroutines();
+        StartCoroutine(Leap(destination));
     }
 
     private IEnumerator Leap(Vector3 destination)
@@ -106,7 +88,7 @@ public class Frogger : MonoBehaviour
         Vector3 startPosition = transform.position;
 
         float elapsed = 0f;
-        float duration = 0.125f; // Zıplama süresi kısaltılabilir
+        float duration = 0.125f; // Adjust jump time if needed
 
         // Set initial state
         spriteRenderer.sprite = leapSprite;
@@ -157,15 +139,16 @@ public class Frogger : MonoBehaviour
         transform.rotation = Quaternion.identity;
         spriteRenderer.sprite = deadSprite;
 
-        // Update game state
+        // Update game state (call GameManager instance)
         GameManager.Instance.Died();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        bool hitObstacle = other.gameObject.layer == LayerMask.NameToLayer("Obstacle");
+        bool hitObstacle = other.CompareTag("Obstacle");
         bool onPlatform = transform.parent != null;
 
+        // If the frogger hits an obstacle and is not on a platform, it dies
         if (enabled && hitObstacle && !onPlatform)
         {
             Death();
