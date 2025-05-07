@@ -3,35 +3,31 @@
 [RequireComponent(typeof(BoxCollider2D))]
 public class Home : MonoBehaviour
 {
-    public GameObject frog;  // Frog objesini tanımlıyoruz
+    public GameObject frog;
 
-    private BoxCollider2D boxCollider;  // BoxCollider2D objesi
+    private BoxCollider2D boxCollider;
 
     private void Awake()
     {
-        boxCollider = GetComponent<BoxCollider2D>();  // BoxCollider2D bileşenini alıyoruz
+        boxCollider = GetComponent<BoxCollider2D>();
     }
 
     private void OnEnable()
     {
-        // Home objesi aktif olduğunda, frog objesini aktif yapıyoruz
         frog.SetActive(true);
-        boxCollider.enabled = false;  // Collider'ı devre dışı bırakıyoruz
+        boxCollider.enabled = false;
     }
 
     private void OnDisable()
     {
-        // Home objesi devre dışı kaldığında, frog objesini devre dışı bırakıyoruz
         frog.SetActive(false);
-        boxCollider.enabled = true;  // Collider'ı tekrar aktif hale getiriyoruz
+        boxCollider.enabled = true;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Eğer bu home objesine bir oyuncu (Player) çarptıysa
         if (other.gameObject.CompareTag("Player"))
         {
-            // Home objesini tamamlanmış sayıyoruz
             GameManager.Instance.HomeOccupied();
         }
     }

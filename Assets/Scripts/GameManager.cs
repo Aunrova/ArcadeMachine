@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    [SerializeField] private Home[] homes;  // Home objeleri yine kullanacağız, ancak sadece etiketle kontrol edilecek
+    [SerializeField] private Home[] homes;
     [SerializeField] private Frogger frogger;
     [SerializeField] private GameObject gameOverMenu;
     [SerializeField] private Text timeText;
@@ -54,10 +54,9 @@ public class GameManager : MonoBehaviour
 
     private void NewLevel()
     {
-        // Homes dizisini kontrol ediyoruz ancak burada tek layerda evlerin etiketleri üzerinden işlem yapacağız
         foreach (Home home in homes)
         {
-            home.gameObject.SetActive(false); // Başlangıçta evleri pasif yapıyoruz
+            home.gameObject.SetActive(false);
         }
 
         Respawn();
@@ -82,7 +81,7 @@ public class GameManager : MonoBehaviour
             timeText.text = time.ToString();
         }
 
-        frogger.Death();  // Zaman dolduğunda oyuncu ölür
+        frogger.Death();
     }
 
     public void Died()
@@ -151,10 +150,9 @@ public class GameManager : MonoBehaviour
 
     private bool Cleared()
     {
-        // Tek layerda objeleri kontrol etmek için etiketlere bakıyoruz
         foreach (Home home in homes)
         {
-            if (home.gameObject.activeSelf) // Eğer ev aktifse, tamamlanmamış demektir
+            if (home.gameObject.activeSelf)
             {
                 return false;
             }
