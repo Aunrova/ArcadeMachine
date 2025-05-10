@@ -1,17 +1,14 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Node : MonoBehaviour
 {
-    public LayerMask obstacleLayer;
+    [SerializeField] private string obstacleTag = "Obstacle";
     public readonly List<Vector2> availableDirections = new();
 
     private void Start()
     {
         availableDirections.Clear();
-
-        // We determine if the direction is available by box casting to see if
-        // we hit a wall. The direction is added to list if available.
         CheckAvailableDirection(Vector2.up);
         CheckAvailableDirection(Vector2.down);
         CheckAvailableDirection(Vector2.left);
@@ -20,12 +17,13 @@ public class Node : MonoBehaviour
 
     private void CheckAvailableDirection(Vector2 direction)
     {
-        RaycastHit2D hit = Physics2D.BoxCast(transform.position, Vector2.one * 0.5f, 0f, direction, 1f, obstacleLayer);
+        RaycastHit2D hit = Physics2D.BoxCast(transform.position, Vector2.one * 0.5f, 0f, direction, 1f);
 
-        // If no collider is hit then there is no obstacle in that direction
-        if (hit.collider == null) {
+        // Yalnızca gerçekten açık yolları ekle
+        if (hit.collider == null || !hit.collider.CompareTag("Obstacle"))
+        {
             availableDirections.Add(direction);
+            Debug.DrawRay(transform.position, direction, Color.green, 2f); // Debug çizgisi
         }
     }
-
 }

@@ -45,8 +45,16 @@ public class Pacman : MonoBehaviour
         }*/
 
         // Rotate pacman to face the movement direction
-        float angle = Mathf.Atan2(movement.direction.y, movement.direction.x);
-        transform.rotation = Quaternion.AngleAxis(angle * Mathf.Rad2Deg, Vector3.forward);
+
+        if (inputVector != Vector2.zero)
+        {
+            movement.SetDirection(inputVector);
+
+            float angle = Mathf.Atan2(inputVector.y, inputVector.x);
+            transform.rotation = Quaternion.AngleAxis(angle * Mathf.Rad2Deg, Vector3.forward);
+        }
+        //float angle = Mathf.Atan2(movement.direction.y, movement.direction.x);
+        //transform.rotation = Quaternion.AngleAxis(angle * Mathf.Rad2Deg, Vector3.forward);
     }
 
     public void ResetState()
