@@ -1,10 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
 public class AnimatedSprite : MonoBehaviour
 {
     public Sprite[] sprites = new Sprite[0];
-    public float animationTime = 0.5f;
+    public float animationTime = 0.25f;
     public bool loop = true;
 
     private SpriteRenderer spriteRenderer;
@@ -15,6 +15,16 @@ public class AnimatedSprite : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
+    private void OnEnable()
+    {
+        spriteRenderer.enabled = true;
+    }
+
+    private void OnDisable()
+    {
+        spriteRenderer.enabled = false;
+    }
+
     private void Start()
     {
         InvokeRepeating(nameof(Advance), animationTime, animationTime);
@@ -22,20 +32,17 @@ public class AnimatedSprite : MonoBehaviour
 
     private void Advance()
     {
-        if (!spriteRenderer.enabled)
-        {
+        if (!spriteRenderer.enabled) {
             return;
         }
 
         animationFrame++;
 
-        if (animationFrame >= sprites.Length && loop)
-        {
+        if (animationFrame >= sprites.Length && loop) {
             animationFrame = 0;
         }
 
-        if (animationFrame >= 0 && animationFrame < sprites.Length)
-        {
+        if (animationFrame >= 0 && animationFrame < sprites.Length) {
             spriteRenderer.sprite = sprites[animationFrame];
         }
     }
@@ -43,6 +50,8 @@ public class AnimatedSprite : MonoBehaviour
     public void Restart()
     {
         animationFrame = -1;
+
         Advance();
     }
+
 }
