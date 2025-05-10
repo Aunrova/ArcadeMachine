@@ -13,10 +13,6 @@ public class Movement : MonoBehaviour
     public Vector2 nextDirection { get; private set; }
     public Vector3 startingPosition { get; private set; }
 
-    // Yeni: Son girdi yönünü sakla
-    private Vector2 inputDirection;
-    private bool hasInputDirection;
-
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -33,34 +29,22 @@ public class Movement : MonoBehaviour
         speedMultiplier = 1f;
         direction = initialDirection;
         nextDirection = Vector2.zero;
-        inputDirection = Vector2.zero;
-        hasInputDirection = false;
         transform.position = startingPosition;
         rb.isKinematic = false;
         enabled = true;
     }
 
-    public void SetInputDirection(Vector2 newInputDirection)
-    {
-        if (newInputDirection != Vector2.zero)
-        {
-            inputDirection = newInputDirection;
-            hasInputDirection = true;
-            TryChangeDirection();
-        }
-    }
+
 
     private void Update()
     {
-        if (hasInputDirection)
+        if (nextDirection != Vector2.zero && !Occupied(nextDirection))
         {
-            TryChangeDirection();
-        }
-        else if (nextDirection != Vector2.zero)
-        {
-            TryApplyNextDirection();
+            direction = nextDirection;
+            nextDirection = Vector2.zero;
         }
     }
+
 
     private void FixedUpdate()
     {
@@ -68,19 +52,18 @@ public class Movement : MonoBehaviour
         rb.MovePosition(newPosition);
     }
 
-    private void TryChangeDirection()
+    public void SetDirection(Vector2 newDirection, bool forced = false)
     {
-        // Girdi yönü mevcut yönle aynı değilse ve engel yoksa
-        if (inputDirection != direction && !Occupied(inputDirection))
+        if (newDirection == direction) return;
+
+        if (forced || !Occupied(newDirection))
         {
-            direction = inputDirection;
+            direction = newDirection;
             nextDirection = Vector2.zero;
-            hasInputDirection = false;
         }
-        // Girdi yönünde engel varsa, bu yönü hatırla
-        else if (inputDirection != direction)
+        else
         {
-            nextDirection = inputDirection;
+            nextDirection = newDirection;
         }
     }
 
@@ -88,12 +71,23 @@ public class Movement : MonoBehaviour
     {
         if (!Occupied(nextDirection))
         {
-            direction = nextDirection;
+            ApplyDirection(nextDirection);
             nextDirection = Vector2.zero;
         }
     }
 
-    public bool Occupied(Vector2 checkDirection)
+    private void ApplyDirection(Vector2 newDirection)
+    {
+        direction = newDirection;
+        nextDirection = Vector2.zero;
+    }
+
+    private void QueueDirection(Vector2 newDirection)
+    {
+        nextDirection = newDirection;
+    }
+
+    private bool Occupied(Vector2 checkDirection)
     {
         if (checkDirection == Vector2.zero) return true;
 
@@ -104,6 +98,9 @@ public class Movement : MonoBehaviour
             checkDirection,
             1.5f
         );
+
+        Debug.DrawRay(transform.position, checkDirection * 1.5f,
+                     hit.collider != null ? Color.red : Color.green, 0.1f);
 
         return hit.collider != null && hit.collider.CompareTag(obstacleTag);
     }

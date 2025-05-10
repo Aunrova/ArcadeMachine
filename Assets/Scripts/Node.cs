@@ -19,11 +19,10 @@ public class Node : MonoBehaviour
     {
         RaycastHit2D hit = Physics2D.BoxCast(transform.position, Vector2.one * 0.5f, 0f, direction, 1f);
 
-        // Yalnızca gerçekten açık yolları ekle
         if (hit.collider == null || !hit.collider.CompareTag("Obstacle"))
         {
             availableDirections.Add(direction);
-            Debug.DrawRay(transform.position, direction, Color.green, 2f); // Debug çizgisi
+            Debug.DrawRay(transform.position, direction, Color.green, 2f);
         }
     }
 }

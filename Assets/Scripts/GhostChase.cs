@@ -15,14 +15,12 @@ public class GhostChase : GhostBehavior
         Node node = other.GetComponent<Node>();
         if (node != null && node.availableDirections.Count > 0)
         {
-            // Mevcut yönün tersini hariç tut
             var validDirections = node.availableDirections
                 .Where(dir => dir != -ghost.movement.direction)
                 .ToList();
 
             if (validDirections.Count == 0) return;
 
-            // En yakın yönü seç
             Vector2 direction = validDirections.OrderBy(dir =>
                 Vector2.Distance(
                     transform.position + (Vector3)dir,

@@ -23,14 +23,12 @@ public class GhostHome : GhostBehavior
     {
         if (enabled && collision.gameObject.CompareTag("Obstacle"))
         {
-            // Ghost'ın mevcut hareket yönünü tersine çevir
-            ghost.movement.SetDirection(-ghost.movement.direction, true); // forced parametresi eklendi
+            ghost.movement.SetDirection(-ghost.movement.direction, true);
         }
     }
 
     private IEnumerator ExitTransition()
     {
-        // Movement script'ine erişim için doğru referans
         Movement movement = ghost.movement;
         movement.SetDirection(Vector2.up, true);
         movement.rb.isKinematic = true;
@@ -40,7 +38,6 @@ public class GhostHome : GhostBehavior
         float duration = 0.5f;
         float elapsed = 0f;
 
-        // İçeriye doğru hareket
         while (elapsed < duration)
         {
             ghost.SetPosition(Vector3.Lerp(position, inside.position, elapsed / duration));
@@ -50,7 +47,6 @@ public class GhostHome : GhostBehavior
 
         elapsed = 0f;
 
-        // Dışarıya doğru hareket
         while (elapsed < duration)
         {
             ghost.SetPosition(Vector3.Lerp(inside.position, outside.position, elapsed / duration));
@@ -58,7 +54,6 @@ public class GhostHome : GhostBehavior
             yield return null;
         }
 
-        // Rastgele yön seç (sol veya sağ)
         Vector2 newDirection = new Vector2(Random.value < 0.5f ? -1f : 1f, 0f);
         movement.SetDirection(newDirection, true);
         movement.rb.isKinematic = false;
