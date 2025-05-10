@@ -1,34 +1,32 @@
-﻿using UnityEngine;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
-[RequireComponent(typeof(BoxCollider2D))]
 public class Home : MonoBehaviour
 {
     public GameObject frog;
 
-    private BoxCollider2D boxCollider;
-
-    private void Awake()
-    {
-        boxCollider = GetComponent<BoxCollider2D>();
-    }
 
     private void OnEnable()
     {
         frog.SetActive(true);
-        boxCollider.enabled = false;
     }
 
     private void OnDisable()
     {
         frog.SetActive(false);
-        boxCollider.enabled = true;
     }
-
+    
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
-            GameManager.Instance.HomeOccupied();
+            enabled=true;
+            GameManager.instance.HomeOccupied();
         }
     }
+
 }

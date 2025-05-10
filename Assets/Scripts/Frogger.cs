@@ -1,5 +1,8 @@
 ﻿using System.Collections;
+using System.Globalization;
+using System.Threading;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [RequireComponent(typeof(SpriteRenderer))]
 public class Frogger : MonoBehaviour
@@ -7,16 +10,18 @@ public class Frogger : MonoBehaviour
     public Sprite idleSprite;
     public Sprite leapSprite;
     public Sprite deadSprite;
+    [SerializeField] private float leftBoundX;
+    [SerializeField] private float rightBoundX;
 
     private SpriteRenderer spriteRenderer;
     private Vector3 spawnPosition;
     private float farthestRow;
-    private bool cooldown;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         spawnPosition = transform.position;
+        farthestRow = spawnPosition.y;
     }
 
     private void Update()
@@ -24,58 +29,78 @@ public class Frogger : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
             transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-            Move(Vector3.up);
+            Move(Vector3.up/3f);
         }
         else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
             transform.rotation = Quaternion.Euler(0f, 0f, 90f);
-            Move(Vector3.left, true);
+            Move(Vector3.left/2.55f);
         }
         else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
             transform.rotation = Quaternion.Euler(0f, 0f, -90f);
-            Move(Vector3.right, true);
+            Move(Vector3.right/2.55f);
         }
         else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
             transform.rotation = Quaternion.Euler(0f, 0f, 180f);
-            Move(Vector3.down);
-        }
-    }
-
-    private void Move(Vector3 direction, bool isHorizontal = false)
-    {
-        if (cooldown) return;
-
-        float moveDistance = 1f * (2f / 3f);
-
-        if (isHorizontal)
-        {
-            moveDistance *= 1.5f;
+            Move(Vector3.down/3f);
         }
 
-        Vector3 destination = transform.position + direction.normalized * moveDistance;
-
-        Collider2D hitObject = Physics2D.OverlapPoint(destination);
-
-        if (hitObject != null && hitObject.CompareTag("Obstacle"))
+        if(transform.position.x < leftBoundX)
         {
             Death();
+        }
+        else if (transform.position.x > rightBoundX)
+        {
+            Death();
+        }
+
+    }
+
+    private void Move(Vector3 direction)
+{
+    Vector3 destination = transform.position + direction;
+
+    Collider2D hit = Physics2D.OverlapBox(destination, Vector2.one * 0.1f, 0f);
+
+    if (hit != null)
+    {
+        if (hit.CompareTag("Barrier"))
+        {
             return;
         }
 
-        if (hitObject != null && hitObject.CompareTag("Platform"))
+        if (hit.CompareTag("Platform"))
         {
-            transform.SetParent(hitObject.transform);
+            transform.SetParent(hit.transform);
         }
         else
         {
             transform.SetParent(null);
         }
 
-        StopAllCoroutines();
-        StartCoroutine(Leap(destination));
+        if (hit.CompareTag("Obstacle"))
+        {
+            transform.position = destination;
+            return;
+        }
     }
+    else
+    {
+        transform.SetParent(null);
+    }
+
+    if(destination.y > farthestRow)
+    {
+        farthestRow = destination.y;
+        GameManager.instance.AdvancedRow();
+    }
+
+    
+    StartCoroutine(Leap(destination));
+}
+
 
     private IEnumerator Leap(Vector3 destination)
     {
@@ -85,7 +110,6 @@ public class Frogger : MonoBehaviour
         float duration = 0.125f;
 
         spriteRenderer.sprite = leapSprite;
-        cooldown = true;
 
         while (elapsed < duration)
         {
@@ -97,42 +121,33 @@ public class Frogger : MonoBehaviour
 
         transform.position = destination;
         spriteRenderer.sprite = idleSprite;
-        cooldown = false;
+    }
+
+    public void Death(){
+        StopAllCoroutines();
+        transform.rotation = Quaternion.identity;
+        spriteRenderer.sprite = deadSprite;
+        enabled = false;
+
+        GameManager.instance.Died();
     }
 
     public void Respawn()
     {
         StopAllCoroutines();
-
-        transform.SetPositionAndRotation(spawnPosition, Quaternion.identity);
+        transform.position = spawnPosition;
+        transform.rotation = Quaternion.identity;
         farthestRow = spawnPosition.y;
-
         spriteRenderer.sprite = idleSprite;
-
         gameObject.SetActive(true);
         enabled = true;
-        cooldown = false;
     }
 
-    public void Death()
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        StopAllCoroutines();
-
-        enabled = false;
-
-        transform.rotation = Quaternion.identity;
-        spriteRenderer.sprite = deadSprite;
-
-        GameManager.Instance.Died();
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        bool hitObstacle = other.CompareTag("Obstacle");
-        bool onPlatform = transform.parent != null;
-
-        if (enabled && hitObstacle && !onPlatform)
+        if(collision.CompareTag("Obstacle"))
         {
+            Debug.Log("Hit an obstacle!");
             Death();
         }
     }

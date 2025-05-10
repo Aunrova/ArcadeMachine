@@ -1,41 +1,32 @@
-﻿using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
+using TMPro;
+using System.Threading;
 using UnityEngine.UI;
 
-[DefaultExecutionOrder(-1)]
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance { get; private set; }
-
-    [SerializeField] private Home[] homes;
-    [SerializeField] private Frogger frogger;
-    [SerializeField] private GameObject gameOverMenu;
-    [SerializeField] private Text timeText;
-    [SerializeField] private Text livesText;
-    [SerializeField] private Text scoreText;
-
-    public int lives { get; private set; } = 3;
-    public int score { get; private set; } = 0;
-    public int time { get; private set; } = 30;
+    public static GameManager instance;
+    private Frogger frogger;
+    public Home[] homes;
+    public TextMeshProUGUI livesText;
+    public TextMeshProUGUI scoreText;
+    public GameObject gameOverMenu;
+    private int time;
+    public int score = 0;
+    public int live;
 
     private void Awake()
     {
-        if (Instance != null)
+        if(instance == null)
         {
-            DestroyImmediate(gameObject);
+            instance = this;
         }
-        else
+        else if (instance != this)
         {
-            Instance = this;
+            Destroy(gameObject);
         }
-    }
-
-    private void OnDestroy()
-    {
-        if (Instance == this)
-        {
-            Instance = null;
-        }
+        frogger = FindObjectOfType<Frogger>();
     }
 
     private void Start()
@@ -43,103 +34,28 @@ public class GameManager : MonoBehaviour
         NewGame();
     }
 
+    private void Update()
+    {
+        scoreText.text = "Score: " + score;
+        livesText.text = "Lives: " + live;
+    }
+    
     private void NewGame()
     {
         gameOverMenu.SetActive(false);
-
         SetScore(0);
         SetLives(3);
         NewLevel();
-    }
-
-    private void NewLevel()
-    {
-        foreach (Home home in homes)
-        {
-            home.gameObject.SetActive(false);
-        }
-
-        Respawn();
-    }
-
-    private void Respawn()
-    {
-        frogger.Respawn();
-        StopAllCoroutines();
         StartCoroutine(Timer(30));
     }
 
-    private IEnumerator Timer(int duration)
-    {
-        time = duration;
-        timeText.text = time.ToString();
-
-        while (time > 0)
-        {
-            yield return new WaitForSeconds(1);
-            time--;
-            timeText.text = time.ToString();
-        }
-
-        frogger.Death();
-    }
-
-    public void Died()
-    {
-        SetLives(lives - 1);
-
-        if (lives > 0)
-        {
-            Invoke(nameof(Respawn), 1f);
-        }
-        else
-        {
-            Invoke(nameof(GameOver), 1f);
-        }
-    }
-
-    private void GameOver()
-    {
+    public void HomeOccupied(){
         frogger.gameObject.SetActive(false);
-        gameOverMenu.SetActive(true);
-
-        StopAllCoroutines();
-        StartCoroutine(CheckForPlayAgain());
-    }
-
-    private IEnumerator CheckForPlayAgain()
-    {
-        bool playAgain = false;
-
-        while (!playAgain)
+        int bonusPoints = time*10;
+        SetScore(score + 600 + bonusPoints);
+        if(Cleared())
         {
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                playAgain = true;
-            }
-
-            yield return null;
-        }
-
-        NewGame();
-    }
-
-    public void AdvancedRow()
-    {
-        SetScore(score + 10);
-    }
-
-    public void HomeOccupied()
-    {
-        frogger.gameObject.SetActive(false);
-
-        int bonusPoints = time * 20;
-        SetScore(score + bonusPoints + 50);
-
-        if (Cleared())
-        {
-            SetLives(lives + 1);
-            SetScore(score + 1000);
+            SetScore(score + 2000);
             Invoke(nameof(NewLevel), 1f);
         }
         else
@@ -148,28 +64,90 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private bool Cleared()
-    {
-        foreach (Home home in homes)
+    private bool Cleared(){
+        for (int i = 0; i < homes.Length; i++)
         {
-            if (home.gameObject.activeSelf)
+            if (homes[i].enabled == false)
             {
                 return false;
             }
         }
-
         return true;
     }
 
-    private void SetScore(int score)
-    {
-        this.score = score;
-        scoreText.text = score.ToString();
+
+    private void Respawn(){
+        frogger.Respawn();
+
+        StopAllCoroutines();
+        StartCoroutine(Timer(30));
     }
 
-    private void SetLives(int lives)
+    private System.Collections.IEnumerator Timer(int duration)
     {
-        this.lives = lives;
-        livesText.text = lives.ToString();
+        time = duration;
+        while (time > 0)
+        {
+            yield return new WaitForSeconds(1f);
+            time--;
+        }
+        frogger.Death();
+    }
+
+    public void AdvancedRow(){
+        SetScore(score + 10);
+    }
+
+    private void NewLevel()
+    {
+        for (int i = 0; i < homes.Length; i++)
+        {
+            homes[i].enabled = false;
+        }
+        Respawn();
+    }
+    
+    public void SetScore(int newScore)
+    {
+        score = newScore;
+        scoreText.text = "Score: " + score;
+    }
+
+    public void Died(){
+        live--;
+        if(live > 0)
+        {
+            Invoke(nameof(Respawn), 1f);
+        }else{
+            Invoke(nameof(GameOver), 1f);
+        }
+    }
+
+    private void GameOver()
+    {
+        frogger.gameObject.SetActive(false);
+        gameOverMenu.SetActive(true);
+        StopAllCoroutines();
+        StartCoroutine(CheckForPlayAgain());
+    }
+ 
+    private System.Collections.IEnumerator CheckForPlayAgain()
+    {
+        bool playAgain = false;
+
+        while(!playAgain)
+        {
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                playAgain = true;
+            }
+            yield return null;
+        }
+        NewGame();
+    }
+
+    private void SetLives(int newLives)
+    {
+        live=newLives;
     }
 }

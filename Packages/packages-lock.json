@@ -79,7 +79,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.burst": {
-      "version": "1.8.19",
+      "version": "1.8.18",
       "depth": 2,
       "source": "registry",
       "dependencies": {
@@ -148,7 +148,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.test-framework": {
-      "version": "1.4.6",
+      "version": "1.4.5",
       "depth": 1,
       "source": "registry",
       "dependencies": {
