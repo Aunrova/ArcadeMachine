@@ -11,5 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Frogger.unity
     guid: 6faa5be8911654f49babe3bb9525948b
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: f54de57357f94b24dac33eab729d174e,
+      type: 2}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 0233c45449805b84295cb9cf7d6f1d9a,
+      type: 3}
   m_UseUCBPForAssetBundles: 0

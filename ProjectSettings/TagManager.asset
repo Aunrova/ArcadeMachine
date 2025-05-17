@@ -9,6 +9,7 @@ TagManager:
   - Home
   - Barrier
   - Car
+  - Water
   layers:
   - Default
   - TransparentFX
