@@ -14,7 +14,6 @@ public class ButtonTrigger : MonoBehaviour
             capsuleRenderers[i] = capsules[i].GetComponent<SpriteRenderer>();
         }
         originalColor = capsuleRenderers[1].color;
-        Debug.Log("Original Color: " + originalColor);
     }
     private void Update()
     {
@@ -76,7 +75,6 @@ public class ButtonTrigger : MonoBehaviour
     {
         SpriteRenderer capsuleRenderer = capsule.GetComponent<SpriteRenderer>();
         capsuleRenderer.color = newColor;
-        Debug.Log("Changed Color: " + newColor);
     }
 
     private IEnumerator ResetColorAfterDelay(GameObject capsule, float delay)
@@ -89,7 +87,6 @@ public class ButtonTrigger : MonoBehaviour
     {
         SpriteRenderer capsuleRenderer = capsule.GetComponent<SpriteRenderer>();
         capsuleRenderer.color = originalColor;
-        Debug.Log("Reset Color: " + originalColor);
     }
     
 }

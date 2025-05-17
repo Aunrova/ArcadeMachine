@@ -185,7 +185,6 @@ public class Frogger : MonoBehaviour
     {
         if (collision.CompareTag("Obstacle"))
         {
-            Debug.Log("Hit an obstacle!");
             Death();
         }
     }

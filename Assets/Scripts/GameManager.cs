@@ -11,14 +11,17 @@ public class GameManager : MonoBehaviour
     public Home[] homes;
     public TextMeshProUGUI livesText;
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI timerText;
     public GameObject gameOverMenu;
     private int time;
     public int score = 0;
     public int live;
+    private Coroutine timerCoroutine;
+
 
     private void Awake()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = this;
         }
@@ -38,6 +41,7 @@ public class GameManager : MonoBehaviour
     {
         scoreText.text = "Score: " + score;
         livesText.text = "Lives: " + live;
+        timerText.text = time.ToString();
     }
     
     private void NewGame()
@@ -46,7 +50,10 @@ public class GameManager : MonoBehaviour
         SetScore(0);
         SetLives(3);
         NewLevel();
-        StartCoroutine(Timer(30));
+        if (timerCoroutine != null)
+        StopCoroutine(timerCoroutine);
+    
+        timerCoroutine = StartCoroutine(Timer(30));
     }
 
     public void HomeOccupied(){
@@ -80,7 +87,10 @@ public class GameManager : MonoBehaviour
         frogger.Respawn();
 
         StopAllCoroutines();
-        StartCoroutine(Timer(30));
+        if (timerCoroutine != null)
+        StopCoroutine(timerCoroutine);
+    
+        timerCoroutine = StartCoroutine(Timer(30));   
     }
 
     private System.Collections.IEnumerator Timer(int duration)
@@ -90,6 +100,7 @@ public class GameManager : MonoBehaviour
         {
             yield return new WaitForSeconds(1f);
             time--;
+            timerText.text = time.ToString();
         }
         frogger.Death();
     }
